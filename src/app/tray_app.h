@@ -2,18 +2,20 @@
 #include <shellapi.h>
 #include <string>
 
-#define WM_TRAYICON (WM_APP + 1)
-
 class TrayApp {
     NOTIFYICONDATAW nid_;
-    
+    HMENU trayMenu_;
+
     void AddTrayIcon();
     void setTooltipText(const wchar_t* text);
     void setVersion();
-    void shutdown();
+    bool initTrayMenu(HWND hwnd);
 
     public:
         TrayApp();
         ~TrayApp();
         bool init(HWND hwnd);
+        void showTrayMenu(HWND hwnd);
+        void removeTrayResources();
+        
 };

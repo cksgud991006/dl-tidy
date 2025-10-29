@@ -1,30 +1,18 @@
 #include "watch.h"
 #include "clean.h"
 #include "log.h"
+#include "windows.h"
+#include <thread>
 
-void watch(std::filesystem::path path) {
-    
-    bool running = true;
-
-    auto lastEventTs = std::chrono::system_clock::now();
-
-    auto timeBound = std::chrono::milliseconds(100);
-
-    log("Program Started");
+void watch(std::filesystem::path path, std::atomic<bool>& running) {
 
     while (running) {
+        
+        cleanUp(path);
 
-        if (isReadyToRun(lastEventTs, timeBound)) {
-            
-            cleanUp(path);
-
-            lastEventTs = std::chrono::system_clock::now();        
-
-        }
-
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); 
     }
 
-    log("Program Done");
 }
 
 template <typename Clock, typename Duration>

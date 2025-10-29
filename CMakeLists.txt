@@ -26,6 +26,7 @@ target_include_directories(Dl-Tidy PRIVATE
     ${SRC_DIR}/core
     ${SRC_DIR}/watch
     ${SRC_DIR}/utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # Link resources
