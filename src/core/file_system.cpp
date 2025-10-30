@@ -19,3 +19,19 @@ std::filesystem::path getDownloadsPath() {
     // fallback: user profile + "Downloads"
     return std::filesystem::path(std::getenv("USERPROFILE")) / "Downloads";
 }
+
+std::filesystem::path getLocalAppDataPath() {
+
+    PWSTR pathTmp = nullptr;
+    
+    if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &pathTmp))) {
+
+        std::filesystem::path localAppData(pathTmp);
+
+        CoTaskMemFree(pathTmp);
+
+        return localAppData;
+    }
+
+    throw std::runtime_error("Failed to get LocalAppData path");
+}

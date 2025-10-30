@@ -10,7 +10,7 @@ void watch(std::filesystem::path path, std::atomic<bool>& running) {
         
         cleanUp(path);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100)); 
+        std::this_thread::sleep_for(std::chrono::minutes(10)); 
     }
 
 }

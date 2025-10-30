@@ -2,9 +2,17 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
+#include "file_system.h"
 
 inline void log(const std::string& message) {
-    std::ofstream logFile("app.log", std::ios::app);
+    
+    std::filesystem::path logDir = getLocalAppDataPath() / "DL-Tidy" / "logs";
+    
+    std::filesystem::create_directories(logDir);
+
+    std::filesystem::path logFilePath = logDir / "log.log";
+
+    std::ofstream logFile(logFilePath, std::ios::app);
     if (!logFile) return;
 
     // Add timestamp

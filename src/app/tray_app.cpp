@@ -75,7 +75,7 @@ void TrayApp::showTrayMenu(HWND hwnd) {
     SetForegroundWindow(hwnd); // required for proper focus and auto-dismiss
     TrackPopupMenu(
         trayMenu_,              // the HMENU you created earlier
-        TPM_RIGHTBUTTON | TPM_BOTTOMALIGN | TPM_RIGHTALIGN,
+        TPM_LEFTALIGN | TPM_BOTTOMALIGN | TPM_RIGHTBUTTON,
         pt.x, pt.y, 0,
         hwnd, nullptr
     );

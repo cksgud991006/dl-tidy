@@ -12,7 +12,6 @@ std::uintmax_t cleanUp(std::filesystem::path path) {
     for (const auto & file: std::filesystem::directory_iterator(path)) {
         num = std::filesystem::remove_all(file.path());
         nums += num;
-        log(std::format("Cleaned {} files", num));
     }
 
     log(std::format("Result: Deleted {} files", nums));

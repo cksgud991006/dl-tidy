@@ -72,7 +72,7 @@ Filename: "{app}\bin\{#AppExeName}"; Description: "Launch {#AppName}"; Flags: no
 
 [UninstallRun]
 ; (Optional) Stop background/tray instance gracefully on uninstall if you add a --shutdown flag
-; Filename: "{app}\bin\{#AppExeName}"; Parameters: "--shutdown"; Flags: skipifdoesntexist
+Filename: "{app}\bin\{#AppExeName}"; Parameters: "--shutdown"; Flags: skipifdoesntexist
 
 [Code]
 function InitializeSetup(): Boolean;
