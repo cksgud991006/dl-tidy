@@ -6,7 +6,7 @@ keep your download folder always empty
 ## Features
 
 - 🔍 Watches a chosen folder for changes  
-- 🗑️ Automatically deletes incomplete or temporary files (e.g. `.tmp`, `.crdownload`)  
+- 🗑️ Automatically deletes incomplete or temporary files (e.g. `.tmp`, `.crdownload`)  (every 10 minutes)
 - 🧩 Runs quietly in the system tray  
 - 💡 Optional autostart on Windows login  
 
@@ -24,6 +24,6 @@ keep your download folder always empty
 ## Usage
 
 - **Right-click** the tray icon to open the menu.  
-- *Clean* → Clean up the download folder  
+- *Clean* → ㅡManually clean up the download folder  
 - *Exit* → Closes the app
 <img width="143" height="76" alt="Untitled" src="https://github.com/user-attachments/assets/80b4c880-8edc-4dcb-9fd2-b4e6e691e7f6" />
