@@ -8,9 +8,7 @@ class App {
     std::thread watchThread_; 
     std::atomic<bool> watchThreadRunning_;
     HWND hWnd_;
-
-    void stop();
-    
+    HANDLE watcherThreadHandle_;
 
     public:
         App();
@@ -22,7 +20,7 @@ class App {
         */
         void runMessageLoop();
         void runFileWatcher();
-
+        void stop();
         /*
             UI Works
         */

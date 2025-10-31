@@ -36,11 +36,9 @@ ArchitecturesInstallIn64BitMode=x64
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\bin\{#AppExeName}
 UninstallDisplayName={#AppName} {#AppVersion}
-
 ; If you want per-user install without admin, uncomment:
 ; PrivilegesRequired=lowest
 ; UsePreviousPrivileges=yes
-
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
@@ -72,7 +70,7 @@ Filename: "{app}\bin\{#AppExeName}"; Description: "Launch {#AppName}"; Flags: no
 
 [UninstallRun]
 ; (Optional) Stop background/tray instance gracefully on uninstall if you add a --shutdown flag
-Filename: "{app}\bin\{#AppExeName}"; Parameters: "--shutdown"; Flags: skipifdoesntexist
+;Filename: "{app}\bin\{#AppExeName}"; Parameters: "--shutdown"; Flags: skipifdoesntexist
 
 [Code]
 function InitializeSetup(): Boolean;

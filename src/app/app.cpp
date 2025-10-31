@@ -45,6 +45,8 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
                 case ID_TRAY_EXIT: {
                     pThis->removeUIResources();
+                    
+                    pThis->stop();
 
                     DestroyWindow(hwnd);
 
@@ -118,7 +120,9 @@ bool App::init(HINSTANCE hInst) {
 
 void App::stop() {
     
-    watchThreadRunning_.store(false);
+    free(pThis);
+
+    CloseHandle(watcherThreadHandle_);
 
     if (watchThread_.joinable()) watchThread_.join();
 
@@ -140,9 +144,17 @@ void App::runFileWatcher() {
     
     auto const path = getDownloadsPath();
 
-    watchThreadRunning_.store(true);
-
-    watchThread_ = std::thread(&watch, path, std::ref(watchThreadRunning_));
+    watcherThreadHandle_ = CreateFileW(
+                        path.c_str(),                  // Directory path
+                        FILE_LIST_DIRECTORY,           // Desired access
+                        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, // Share mode
+                        nullptr,                       // Security attributes
+                        OPEN_EXISTING,                 // Creation disposition
+                        FILE_FLAG_BACKUP_SEMANTICS,    // Flags & attributes
+                        nullptr                        // Template file (unused)
+                    );
+    
+    watchThread_ = std::thread(&watch, path, std::ref(watcherThreadHandle_));
 
 }
 
