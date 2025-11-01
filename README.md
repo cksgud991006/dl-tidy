@@ -1,3 +1,4 @@
+![DL-Tidy Logo](./assets/dl-tidy.ico)
 # dl-tidy
 keep your download folder always empty
 
@@ -5,10 +6,10 @@ keep your download folder always empty
 
 ## Features
 
-- 🔍 Watches a chosen folder for changes  
-- 🗑️ Automatically deletes incomplete or temporary files (e.g. `.tmp`, `.crdownload`)  (every 10 minutes)
-- 🧩 Runs quietly in the system tray  
-- 💡 Optional autostart on Windows login  
+- Watches a Downloads folder for changes  
+- Automatically deletes incomplete or temporary files (e.g. `.tmp`, `.crdownload`) in Downloads folder
+- Runs quietly in the system tray  
+- Optional autostart on Windows login  
 
 ---
 
