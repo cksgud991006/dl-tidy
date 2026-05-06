@@ -14,5 +14,4 @@ target_link_libraries(Dl-Tidy PRIVATE
     app
     core
     utils
-    watch
 )

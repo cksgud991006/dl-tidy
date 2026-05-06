@@ -7,6 +7,7 @@
 #include "tray_resource.h"
 
 enum COMMAND {
+    ID_TRAY_OPEN_LOG_LOCATION,
     ID_TRAY_CLEAN,
     ID_TRAY_EXIT
 };
@@ -21,6 +22,7 @@ class TrayApp {
         void AddTrayIcon();
         void setVersion();
         void setTooltipText(const wchar_t* text);
+        
     public:
         TrayApp();
         ~TrayApp();

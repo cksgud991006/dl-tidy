@@ -1,6 +1,11 @@
 #include <windows.h>
+#include <winuser.h>
 
 #include "app.h"
+#include "directory.h"
+#include "watch.h"
+#include "clean.h"
+#include "tray_resource.h"
 
 /*
     Public Functions
@@ -16,7 +21,16 @@ App::~App() {
 
 bool App::init(HINSTANCE hInst) {
 
-    hWnd = CreateWindowExW(WS_EX_TOOLWINDOW, // hidden window (no taskbar, no Alt-Tab)
+    wc = {};
+    wc.lpfnWndProc = WindowProc;
+    wc.hInstance = hInst;
+    wc.lpszClassName = L"DLTidyHiddenClass";
+    
+    ATOM atom = RegisterClassW(&wc);
+
+    if (atom == 0) return false;
+
+    HWND hWnd = CreateWindowExW(WS_EX_TOOLWINDOW, // hidden window (no taskbar, no Alt-Tab)
                             wc.lpszClassName, L"DL-Tidy Window",
                             WS_POPUP,   // exists outside an application's main window
                             0, 0, 0, 0, // position/size 0 → hidden 
@@ -25,11 +39,9 @@ bool App::init(HINSTANCE hInst) {
                     
     if (!hWnd) return false;
 
-    if (!window_.init(hInst)) return false;
-
     if (!trayApp_.init(hWnd)) return false;
 
-    return true;
+    return atom != 0;
 }
 
 void App::stop() {
@@ -40,10 +52,9 @@ void App::stop() {
 
 }
 
-
-void App::runTasks() {
-    runFileWatcher();
-    runMessageLoop();
+void App::hideWindow() {
+    HWND console = GetConsoleWindow();
+    ShowWindow(console, SW_HIDE);
 }
 
 void App::showTrayMenu() {
@@ -52,6 +63,12 @@ void App::showTrayMenu() {
 
 void App::removeTrayResources() {
     trayApp_.stop();
+}
+
+
+void App::runTasks() {
+    runFileWatcher();
+    runMessageLoop();
 }
 
 /*
@@ -82,4 +99,88 @@ void App::runFileWatcher() {
     
     watchThread_ = std::thread(&watch, path, std::ref(watcherThreadHandle_));
 
+}
+
+/*
+    The WNDPROC callback
+*/ 
+LRESULT CALLBACK App::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    App* pThis;
+
+    switch (uMsg)
+    {
+        // window constructor
+        case WM_CREATE: { 
+            CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+            pThis = reinterpret_cast<App*>(pCreate->lpCreateParams);
+            SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
+
+            break;
+        }
+
+        case WM_TRAYICON: {
+
+            LONG_PTR data = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            pThis = reinterpret_cast<App*>(data);
+
+            if (lParam == WM_RBUTTONUP) {
+                pThis->showTrayMenu();
+
+                PostMessage(hwnd, WM_NULL, 0, 0); // let the menu close properly
+            }
+
+            break;
+        }
+
+        case WM_COMMAND: {// dropdown command
+
+            LONG_PTR data = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            pThis = reinterpret_cast<App*>(data);
+
+            switch(LOWORD(wParam)) {
+
+                case ID_TRAY_OPEN_LOG_LOCATION: {
+
+                    std::filesystem::path logPath = getLogPath();
+                    LPCWSTR lpcwstr = logPath.c_str();
+
+                    ShellExecuteW(NULL, L"open", lpcwstr, NULL, NULL, SW_SHOWNORMAL);
+                    
+                    break;
+                }
+
+                case ID_TRAY_CLEAN: {
+
+                    cleanUp(getDownloadsPath());
+                    
+                    break;
+                }
+
+                case ID_TRAY_EXIT: {
+
+                    pThis->removeTrayResources();
+                    
+                    pThis->stop();
+
+                    break;
+                }
+            }
+
+            break;
+        }
+
+        case WM_DESTROY: {
+            PostQuitMessage(0);
+
+            break;
+        }
+
+        default: {
+            // For any messages not explicitly handled, pass them to the default window procedure
+            return DefWindowProc(hwnd, uMsg, wParam, lParam);
+        }
+    }
+
+    return 0; // Message handled
 }

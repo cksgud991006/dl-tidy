@@ -7,7 +7,7 @@
 
 void log(const std::string& message) {
     
-    std::filesystem::path logDir = getLocalAppDataPath() / "DL-Tidy" / "logs";
+    std::filesystem::path logDir = getLogPath();
     
     std::filesystem::create_directories(logDir);
 
@@ -24,7 +24,7 @@ void log(const std::string& message) {
 
 void log_debug(const std::string& message) {
     
-    std::filesystem::path logDir = getLocalAppDataPath() / "DL-Tidy" / "logs";
+    std::filesystem::path logDir = getLogPath();
     
     std::filesystem::create_directories(logDir);
 
@@ -41,7 +41,7 @@ void log_debug(const std::string& message) {
 
 void log_error(const std::string& message) {
     
-    std::filesystem::path logDir = getLocalAppDataPath() / "DL-Tidy" / "logs";
+    std::filesystem::path logDir = getLogPath();
     
     std::filesystem::create_directories(logDir);
 

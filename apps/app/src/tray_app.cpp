@@ -43,7 +43,6 @@ bool TrayApp::init(HWND hwnd) {
 
 }
 
-
 /*
     Private Functions
 */
@@ -66,6 +65,7 @@ bool TrayApp::initTrayMenu() {
     if (!trayMenu_) return false;
 
     // Build the menu
+    AppendMenuW(trayMenu_, MF_STRING, ID_TRAY_OPEN_LOG_LOCATION, L"Open Logs");
     AppendMenuW(trayMenu_, MF_STRING, ID_TRAY_CLEAN, L"Clean");
     AppendMenuW(trayMenu_, MF_STRING, ID_TRAY_EXIT,  L"Exit");
 

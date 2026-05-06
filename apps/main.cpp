@@ -1,3 +1,5 @@
+#include "app.h"
+
 int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, PWSTR, int) {
 
     App app;

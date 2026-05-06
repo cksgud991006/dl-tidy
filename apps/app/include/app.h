@@ -2,15 +2,12 @@
 
 #include <windows.h>
 #include <thread>
-
 #include "tray_app.h"
-#include "hidden_window.h"
-
 
 class App {
     private:
         TrayApp trayApp_;
-        Window window_;
+        WNDCLASSW wc;
 
         std::thread watchThread_; 
         std::atomic<bool> watchThreadRunning_;
@@ -19,12 +16,15 @@ class App {
         void runMessageLoop();
         void runFileWatcher();
 
+        static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
     public:
         App();
         ~App();
         bool init(HINSTANCE hInst);
-        void runTasks();
         void showTrayMenu();
         void removeTrayResources();
+        void hideWindow();
+        void runTasks();
         void stop();
 };
