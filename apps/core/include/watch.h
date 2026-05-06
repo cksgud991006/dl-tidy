@@ -1,7 +1,9 @@
+#pragma once
+
+#include <windows.h>
 #include <filesystem>
 #include <chrono>
 #include <atomic>
-#include "windows.h"
 
 /*
     Monitors the specified directory for file system changes.
@@ -15,3 +17,4 @@ void watch(std::filesystem::path path, HANDLE& hDir);
 template <typename Clock, typename Duration>
 bool isReadyToRun(std::chrono::time_point<Clock, Duration> start,
                   std::chrono::duration<double> interval);
+

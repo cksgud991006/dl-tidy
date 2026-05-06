@@ -1,13 +1,16 @@
+#include <format>
+#include <thread>
+
 #include "watch.h"
 #include "clean.h"
 #include "log.h"
-#include <format>
-#include <thread>
 
 void watch(std::filesystem::path path, HANDLE& hDir) {
     
     BYTE buf[64 * 1024]; // 64 KB is a safe common size
     DWORD bytes;
+
+    log_debug("File watcher thread started");
     
     for (;;) {    // sync mode
         
@@ -24,21 +27,18 @@ void watch(std::filesystem::path path, HANDLE& hDir) {
                 
         if (!ok) {
             DWORD err = GetLastError();
-            log(std::format("RDCW failed: {}", err));
+            log_debug(std::format("RDCW failed: {}", err));
             if (err == ERROR_INVALID_HANDLE || err == ERROR_OPERATION_ABORTED) {
-                // handle was closed/canceled -> exit loop
+                log_debug("Watcher thread shutting down: Handle closed.");
                 break;
             }
-            if (err == ERROR_NOTIFY_ENUM_DIR) {
-                // optional: rescan(path);
-                continue;
-            }
-            // other fatal error -> exit to avoid spinning
+            log_error(std::format("Watcher error: {}", err));
             break;
         }
 
-        cleanUp(path);
-
+        if (bytes > 0) {
+            cleanUp(path);
+        }
     }
 
 }

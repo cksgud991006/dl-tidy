@@ -1,3 +1,3 @@
-#include "resources.h"
+#include "tray_resource.h"
 // resources.rc
-IDI_DLTIDY_ICON ICON "assets/dl-tidy.ico"
+IDI_DLTIDY_ICON_NAME ICON "assets/dl-tidy.ico"
