@@ -15,3 +15,16 @@ target_link_libraries(Dl-Tidy PRIVATE
     core
     utils
 )
+
+# Link resources
+target_sources(Dl-Tidy PRIVATE resources.rc)
+
+if (MSVC)
+    # Turn off MSVC's automatic manifest generation so it uses yours from resources.rc
+    target_link_options(Dl-Tidy PRIVATE "/MANIFEST:NO")
+endif()
+
+# If you're using MinGW (not MSVC), ensure Unicode entry point
+if (MINGW)
+  target_link_options(Dl-Tidy PRIVATE -municode)
+endif()
