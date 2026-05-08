@@ -1,3 +1,0 @@
-#include "resources.h"
-// resources.rc
-IDI_DLTIDY_ICON ICON "assets/dl-tidy.ico"

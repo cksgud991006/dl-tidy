@@ -1,9 +1,15 @@
-#include "tray_app.h"
-#include "resources.h"
+#include <windows.h>   // MUST BE FIRST
+#include <shellapi.h>  // Required for Shell_NotifyIcon and NOTIFYICONDATA
 #include <strsafe.h>
-#include "log.h"
 #include <format>
-#include "types.h"
+
+#include "tray_app.h"
+#include "log.h"
+
+
+/*
+    Public Functions
+*/
 
 TrayApp::TrayApp() {
 
@@ -21,7 +27,9 @@ bool TrayApp::init(HWND hwnd) {
     nid_.uID = 1;
     nid_.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
     nid_.uCallbackMessage = WM_TRAYICON;
-    nid_.hIcon = LoadIconW(GetModuleHandleW(nullptr), MAKEINTRESOURCEW(IDI_DLTIDY_ICON));
+    nid_.hIcon = LoadIconW(GetModuleHandleW(nullptr), MAKEINTRESOURCEW(IDI_DLTIDY_ICON_NAME));
+
+    hWnd_ = hwnd;
 
     AddTrayIcon();
 
@@ -29,19 +37,15 @@ bool TrayApp::init(HWND hwnd) {
     
     setTooltipText(L"Dl-Tidy");
 
-    if (!initTrayMenu(hwnd)) return false;
+    if (!initTrayMenu()) return false;
 
     return true;
 
 }
 
-void TrayApp::setTooltipText(const wchar_t* text) {
-
-    StringCchCopyW(nid_.szTip, ARRAYSIZE(nid_.szTip), text);
-
-    Shell_NotifyIconW(NIM_MODIFY, &nid_);
-
-}
+/*
+    Private Functions
+*/
 
 void TrayApp::AddTrayIcon() {
 
@@ -56,35 +60,46 @@ void TrayApp::setVersion() {
 
 }
 
-bool TrayApp::initTrayMenu(HWND hwnd) {
+bool TrayApp::initTrayMenu() {
     trayMenu_ = CreatePopupMenu();
     if (!trayMenu_) return false;
 
     // Build the menu
+    AppendMenuW(trayMenu_, MF_STRING, ID_TRAY_OPEN_LOG_LOCATION, L"Open Logs");
     AppendMenuW(trayMenu_, MF_STRING, ID_TRAY_CLEAN, L"Clean");
     AppendMenuW(trayMenu_, MF_STRING, ID_TRAY_EXIT,  L"Exit");
-
-    SetMenu(hwnd, trayMenu_);
 
     return true;
 }
 
-void TrayApp::showTrayMenu(HWND hwnd) {
+void TrayApp::showMenu() {
     POINT pt;
     GetCursorPos(&pt);         // current cursor position (screen coords)
-    SetForegroundWindow(hwnd); // required for proper focus and auto-dismiss
+    SetForegroundWindow(hWnd_); // required for proper focus and auto-dismiss
     TrackPopupMenu(
         trayMenu_,              // the HMENU you created earlier
         TPM_LEFTALIGN | TPM_BOTTOMALIGN | TPM_RIGHTBUTTON,
         pt.x, pt.y, 0,
-        hwnd, nullptr
+        hWnd_, nullptr
     );
 }
 
-void TrayApp::removeTrayResources() {
+void TrayApp::setTooltipText(const wchar_t* text) {
+
+    StringCchCopyW(nid_.szTip, ARRAYSIZE(nid_.szTip), text);
+
+    Shell_NotifyIconW(NIM_MODIFY, &nid_);
+
+}
+
+void TrayApp::stop() {
 
     if (nid_.cbSize) {
         Shell_NotifyIconW(NIM_DELETE, &nid_);
         nid_ = {};
     }
+
+    DestroyMenu(trayMenu_);
+    DestroyWindow(hWnd_);
 }
+
