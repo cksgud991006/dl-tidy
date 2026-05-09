@@ -3,9 +3,9 @@
 
 #include "app.h"
 #include "directory.h"
-#include "watch.h"
-#include "clean.h"
 #include "tray_resource.h"
+#include "shared_directory_manager.h"
+#include "log.h"
 
 /*
     Public Functions
@@ -16,7 +16,7 @@ App::App() {
 }
 
 App::~App() {
-
+    stop();
 }
 
 bool App::init(HINSTANCE hInst) {
@@ -46,9 +46,19 @@ bool App::init(HINSTANCE hInst) {
 
 void App::stop() {
     
-    CloseHandle(watcherThreadHandle_);
+    log_debug("Stopping app...");
+
+    if (eventWatcher_) eventWatcher_->stop();
+    if (eventHandler_) eventHandler_->stop();
 
     if (watchThread_.joinable()) watchThread_.join();
+    if (jobThread_.joinable()) jobThread_.join();
+
+    trayApp_.stop();
+
+    PostQuitMessage(0);
+
+    log_debug("App stopped");
 
 }
 
@@ -61,33 +71,21 @@ void App::showTrayMenu() {
     trayApp_.showMenu();
 }
 
-void App::removeTrayResources() {
-    trayApp_.stop();
-}
-
-
 void App::runTasks() {
     runFileWatcher();
+    runFileJobExecutor();
     runMessageLoop();
 }
 
 /*
     Private Functions
 */
-void App::runMessageLoop() {
-    // Message loop: REQUIRED so the icon can receive clicks and the app stays alive
-    MSG msg;
-    while (GetMessageW(&msg, nullptr, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessageW(&msg);
-    }
-}
 
-void App::runFileWatcher() {
+void App::runFileWatcher() { 
     
     auto const path = getDownloadsPath();
 
-    watcherThreadHandle_ = CreateFileW(
+    HANDLE hDir = CreateFileW(
                         path.c_str(),                  // Directory path
                         FILE_LIST_DIRECTORY,           // Desired access
                         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, // Share mode
@@ -95,10 +93,26 @@ void App::runFileWatcher() {
                         OPEN_EXISTING,                 // Creation disposition
                         FILE_FLAG_BACKUP_SEMANTICS,    // Flags & attributes
                         nullptr                        // Template file (unused)
-                    );
+    );
     
-    watchThread_ = std::thread(&watch, path, std::ref(watcherThreadHandle_));
+    eventHandler_ = std::make_shared<SharedDirectoryManager>();
+    eventWatcher_ = std::make_shared<EventWatcher>(eventHandler_.get(), hDir);
 
+    watchThread_ = std::thread(&EventWatcher::watch, eventWatcher_.get(), path);
+
+}
+
+void App::runFileJobExecutor() {
+    jobThread_ = std::thread(&SharedDirectoryManager::execute, eventHandler_.get());
+}
+
+void App::runMessageLoop() {
+    // TODO: stop loop preperly
+    MSG msg;
+    while (GetMessageW(&msg, nullptr, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessageW(&msg);
+    }
 }
 
 /*
@@ -152,14 +166,12 @@ LRESULT CALLBACK App::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
                 case ID_TRAY_CLEAN: {
 
-                    cleanUp(getDownloadsPath());
+                    pThis->eventHandler_.get()->scheduleFilesJob(getDownloadsPath());
                     
                     break;
                 }
 
                 case ID_TRAY_EXIT: {
-
-                    pThis->removeTrayResources();
                     
                     pThis->stop();
 
@@ -171,7 +183,12 @@ LRESULT CALLBACK App::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         }
 
         case WM_DESTROY: {
-            PostQuitMessage(0);
+
+            LONG_PTR data = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+            pThis = reinterpret_cast<App*>(data);
+
+            pThis->stop();
 
             break;
         }

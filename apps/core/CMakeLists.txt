@@ -1,6 +1,6 @@
 add_library(core STATIC 
-    src/clean.cpp
-    src/watch.cpp
+    src/shared_directory_manager.cpp
+    src/event_watcher.cpp
 )
 
 target_include_directories(core PUBLIC include)

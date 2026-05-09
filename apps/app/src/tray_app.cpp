@@ -94,6 +94,8 @@ void TrayApp::setTooltipText(const wchar_t* text) {
 
 void TrayApp::stop() {
 
+    log_debug("Stopping tray app...");
+
     if (nid_.cbSize) {
         Shell_NotifyIconW(NIM_DELETE, &nid_);
         nid_ = {};
@@ -101,5 +103,7 @@ void TrayApp::stop() {
 
     DestroyMenu(trayMenu_);
     DestroyWindow(hWnd_);
+
+    log_debug("Tray app stopped");
 }
 

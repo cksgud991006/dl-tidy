@@ -4,5 +4,5 @@
 IDI_DLTIDY_ICON_NAME ICON "assets/dl-tidy.ico"
 
 // manifest resource
-1 RT_MANIFEST "app.manifest"
+//1 RT_MANIFEST "app.manifest"
 
