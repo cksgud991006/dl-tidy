@@ -24,7 +24,20 @@ keep your download folder always empty
 ---
 ## Usage
 
+<img width="143" height="76" alt="Untitled" src="https://github.com/user-attachments/assets/80b4c880-8edc-4dcb-9fd2-b4e6e691e7f6" />
+
 - **Right-click** the tray icon to open the menu.  
 - *Clean* → ㅡManually clean up the download folder  
 - *Exit* → Closes the app
-<img width="143" height="76" alt="Untitled" src="https://github.com/user-attachments/assets/80b4c880-8edc-4dcb-9fd2-b4e6e691e7f6" />
+
+
+
+---
+## Build
+
+Developer mode requires building the program through cmake commands.
+
+```C++
+cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug -B build
+cmake --build build   
+```
