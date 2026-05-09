@@ -15,11 +15,9 @@ keep your download folder always empty
 
 ## Installation
 
-1. **Download** the installer:  
-   [`DL-Tidy-Setup-1.0.0.exe`](#) (from the official release page)
+1. **Download** the [`installer`](https://github.com/cksgud991006/dl-tidy/releases) (from the official release page)
 
 2. **Run** the installer and follow the on-screen instructions.  
-   By default, DL-Tidy installs to:
 
 ---
 ## Usage
