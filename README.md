@@ -1,4 +1,4 @@
-![DL-Tidy Logo](./assets/dl-tidy.ico)
+![DL-Tidy Logo](./apps/assets/dl-tidy.ico)
 # dl-tidy
 keep your download folder always empty
 
