@@ -1,14 +1,14 @@
 ; ===== DL-Tidy Inno Setup script =====
 #define AppName       "DL-Tidy"
-#define AppVersion    "1.0.0"
+#define AppVersion    "2.0.0"
 #define AppPublisher  "cksgud991006"
 #define AppExeName    "Dl-Tidy.exe"
 
 ; Build outputs we’ll look for (MinGW)
 #define MyAppExe "Dl-Tidy.exe"
 #pragma message SourcePath: {#SourcePath}
-#ifexist SourcePath + "\\build\\" + MyAppExe
-  #define BuildBin SourcePath + "\\build\\"
+#ifexist SourcePath + "\\build\\apps\\" + MyAppExe
+  #define BuildBin SourcePath + "\\build\\apps\\"
 #else
   #error Could not find build output at compile time. Build Release or adjust BuildBin.
 #endif
@@ -17,7 +17,7 @@
 ; If you have a standalone .ico, set: #define InstallerIco "resources\\app.ico"
 ; Otherwise we’ll reuse the EXE’s icon at compile time.
 #ifndef InstallerIco
-  #define InstallerIco "assets\\dl-tidy.ico"
+  #define InstallerIco "apps\\assets\\dl-tidy.ico"
 #endif
 
 [Setup]
