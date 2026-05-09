@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <thread>
 #include <memory>
+#include <vector>
 
 #include "tray_app.h"
 #include "event_watcher.h"
@@ -18,7 +19,7 @@ class App {
         std::shared_ptr<SharedDirectoryManager> eventHandler_;
 
         std::thread watchThread_; 
-        std::thread jobThread_;
+        std::vector<std::thread> jobThreads_;
         std::atomic<bool> watchThreadRunning_;
         
         HWND hWnd_; // void*

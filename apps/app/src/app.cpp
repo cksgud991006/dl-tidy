@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <winuser.h>
+#include <format>
 
 #include "app.h"
 #include "directory.h"
@@ -52,7 +53,9 @@ void App::stop() {
     if (eventHandler_) eventHandler_->stop();
 
     if (watchThread_.joinable()) watchThread_.join();
-    if (jobThread_.joinable()) jobThread_.join();
+    for (auto& jobThread : jobThreads_) {
+        if (jobThread.joinable()) jobThread.join();
+    }
 
     trayApp_.stop();
 
@@ -108,7 +111,14 @@ void App::runFileWatcher() {
 }
 
 void App::runFileJobExecutor() {
-    jobThread_ = std::thread(&SharedDirectoryManager::execute, eventHandler_.get());
+
+    int numThreads = std::thread::hardware_concurrency() - 1; // leave one thread for the watcher
+
+    log_debug(std::format("Starting job executor with {} threads", numThreads));
+
+    for (int i = 0; i < numThreads; ++i) {
+        jobThreads_.emplace_back(&SharedDirectoryManager::execute, eventHandler_.get());
+    }
 }
 
 void App::runMessageLoop() {
