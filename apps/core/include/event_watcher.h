@@ -19,6 +19,7 @@ class EventWatcher {
         HANDLE hIOCP_;
         HANDLE hDir_;
         IFileChangeHandler* handler_;
+        OVERLAPPED overlapped_rdc;
         std::atomic<bool> isFinished_ {false};
 
     public:

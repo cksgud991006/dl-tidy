@@ -7,6 +7,12 @@ SharedDirectoryManager::~SharedDirectoryManager() {
 
 void SharedDirectoryManager::scheduleFilesJob(std::filesystem::path path) {
 
+    // TODO: fix feedback loop, threads file removal triggering new file change events
+    if (!jobQueue_.empty()) {
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // wait for the current job to be processed
+        return;
+    }
+
     {
         std::unique_lock<std::mutex> lock(mutex_);
 

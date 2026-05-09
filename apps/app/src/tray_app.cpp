@@ -102,7 +102,6 @@ void TrayApp::stop() {
     }
 
     DestroyMenu(trayMenu_);
-    DestroyWindow(hWnd_);
 
     log_debug("Tray app stopped");
 }

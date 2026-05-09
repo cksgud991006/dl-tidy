@@ -30,16 +30,16 @@ bool App::init(HINSTANCE hInst) {
 
     if (atom == 0) return false;
 
-    HWND hWnd = CreateWindowExW(WS_EX_TOOLWINDOW, // hidden window (no taskbar, no Alt-Tab)
+    hWnd_ = CreateWindowExW(WS_EX_TOOLWINDOW, // hidden window (no taskbar, no Alt-Tab)
                             wc.lpszClassName, L"DL-Tidy Window",
                             WS_POPUP,   // exists outside an application's main window
                             0, 0, 0, 0, // position/size 0 → hidden 
                             nullptr, nullptr, hInst, this);
 
                     
-    if (!hWnd) return false;
+    if (!hWnd_) return false;
 
-    if (!trayApp_.init(hWnd)) return false;
+    if (!trayApp_.init(hWnd_)) return false;
 
     return atom != 0;
 }
@@ -57,6 +57,10 @@ void App::stop() {
     trayApp_.stop();
 
     PostQuitMessage(0);
+
+    CloseHandle(hDir_);
+    CloseHandle(hWnd_);
+
 
     log_debug("App stopped");
 
@@ -85,18 +89,19 @@ void App::runFileWatcher() {
     
     auto const path = getDownloadsPath();
 
-    HANDLE hDir = CreateFileW(
-                        path.c_str(),                  // Directory path
-                        FILE_LIST_DIRECTORY,           // Desired access
-                        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, // Share mode
-                        nullptr,                       // Security attributes
-                        OPEN_EXISTING,                 // Creation disposition
-                        FILE_FLAG_BACKUP_SEMANTICS,    // Flags & attributes
-                        nullptr                        // Template file (unused)
+    hDir_ = CreateFileW(
+        path.c_str(),                  // Directory path
+        FILE_LIST_DIRECTORY,           // Desired access
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, // Share mode
+        nullptr,                       // Security attributes
+        OPEN_EXISTING,                 // Creation disposition
+        FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,    // Flags & attributes
+        nullptr                        // Template file (unused)
     );
     
     eventHandler_ = std::make_shared<SharedDirectoryManager>();
-    eventWatcher_ = std::make_shared<EventWatcher>(eventHandler_.get(), hDir);
+    eventWatcher_ = std::make_shared<EventWatcher>(eventHandler_.get(), hDir_);
+    eventWatcher_.get()->init();
 
     watchThread_ = std::thread(&EventWatcher::watch, eventWatcher_.get(), path);
 

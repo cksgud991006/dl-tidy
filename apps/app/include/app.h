@@ -21,6 +21,9 @@ class App {
         std::thread jobThread_;
         std::atomic<bool> watchThreadRunning_;
         
+        HWND hWnd_; // void*
+        HANDLE hDir_; // void*
+
         void runMessageLoop();
         void runFileWatcher();
         void runFileJobExecutor();

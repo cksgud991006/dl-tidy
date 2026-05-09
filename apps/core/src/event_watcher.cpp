@@ -21,12 +21,10 @@ void EventWatcher::init() {
 
 void EventWatcher::watch(std::filesystem::path path) {
         
-    if (!hIOCP_) { 
+    if (!hIOCP_ || hIOCP_ == INVALID_HANDLE_VALUE) { 
         log_error(std::format("Failed to create IOCP: {}", GetLastError()));
         return;
     }
-
-    OVERLAPPED overlapped = { 0 };
 
     log_debug("Event watcher thread started");
 
@@ -36,6 +34,9 @@ void EventWatcher::watch(std::filesystem::path path) {
 
     for (;;) {
         
+        // Reset overlapped for every new request
+        memset(&overlapped_rdc, 0, sizeof(OVERLAPPED));
+
         success = ReadDirectoryChangesW(hDir_, 
                 buf, sizeof(buf), 
                 false,                          // monitor directory itself without subfolders
@@ -45,7 +46,7 @@ void EventWatcher::watch(std::filesystem::path path) {
                 FILE_NOTIFY_CHANGE_SIZE |
                 FILE_NOTIFY_CHANGE_FILE_NAME |
                 FILE_NOTIFY_CHANGE_LAST_ACCESS, 
-                NULL, &overlapped, NULL);
+                NULL, &overlapped_rdc, NULL);
                 
         if (!success) {
             DWORD err = GetLastError();
@@ -55,9 +56,9 @@ void EventWatcher::watch(std::filesystem::path path) {
 
         DWORD bytes;
         ULONG_PTR completionKey;
-        LPOVERLAPPED overlapped;
+        LPOVERLAPPED overlapped_gqcs;
 
-        success = GetQueuedCompletionStatus(hIOCP_, &bytes, &completionKey, &overlapped, INFINITE);
+        success = GetQueuedCompletionStatus(hIOCP_, &bytes, &completionKey, &overlapped_gqcs, INFINITE);
         
         if (completionKey == 0xDEAD || isFinished_) {
             log_debug("File watcher thread stopping...");
